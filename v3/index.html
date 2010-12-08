@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-   <title>Getting location from an IP</title>
+   <title>Getting location from an IP using geo.places</title>
    <link rel="stylesheet" href="http://yui.yahooapis.com/2.7.0/build/reset-fonts-grids/reset-fonts-grids.css" type="text/css">
    <link rel="stylesheet" href="http://yui.yahooapis.com/2.7.0/build/base/base.css" type="text/css">
    <style type="text/css">
@@ -46,7 +46,7 @@
 </head>
 <body>
 <div id="doc" class="yui-t7">
-   <div id="hd" role="banner"><h1>Getting location from IP using JavaScript</h1></div>
+   <div id="hd" role="banner"><h1>Getting location from IP using geo.places</h1></div>
       <div id="bd" role="main">
          <h2>Map and Info</h2>
          <div class="yui-g">
@@ -58,7 +58,7 @@
             </div>
          </div><!-- and yui-g -->
       </div><!--end bd -->
-<div id="ft" role="contentinfo"><p>written by @<a href="http://twitter.com/thinkphp">thinkphp</a> using <a href="http://jsonip.appspot.com">jsonip.appspot.com</a> and <a href="http://code.google.com/apis/maps/documentation/staticmaps/">Google Static Maps API V2</a> | <a href="../">v1</a>| <a href="../v2/">v2</a></p></div>
+<div id="ft" role="contentinfo"><p>written by @<a href="http://twitter.com/thinkphp">thinkphp</a></p></div>
 </div><!-- end doc -->
 <script type="text/javascript">
 window.yourIP; 
@@ -96,16 +96,33 @@ function seed(o) {
      map.innerHTML = '<img src="'+url+'" alt="'+typecontent+'">';   
 };
 
-function retrieveIp(o){
-     yourIP = o.ip;
+function go(lat,lng){
      var yql = 'select * from geo.places where woeid in '+ 
-                              '(select place.woeid from flickr.places where (lat,lon) '+
-                                'in (select Latitude,Longitude from ip.location where ip="'+o.ip+'"))';
-     var endpoint = "http://query.yahooapis.com/v1/public/yql?q=";
+                              '(select place.woeid from flickr.places where lat = "' + lat + '" and lon= "' + lng + '")';
+          var endpoint = "http://query.yahooapis.com/v1/public/yql?q=";
      var url = endpoint + encodeURIComponent(yql) + '&format=json&callback=seed&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys';
      if(window.console) {console.log(yql);}
      loadScript(url,function(){}); 
 };
+
+function receivedLatLng(o) {
+     var lat = o.query.results.Response.Latitude,
+         lng = o.query.results.Response.Longitude;
+         go(lat,lng);
+}
+
+function receivedIp(o) {
+   yourIP = o.ip;
+   retrieveLatLong(o.ip);
+}
+
+function retrieveLatLong(ip) {
+     var YQL = 'use "http://thinkphp.ro/apps/YQL/ip.location2.xml" as ip.location; select Latitude,Longitude from ip.location where ip="'+ ip +'"';
+     var endpoint = "http://query.yahooapis.com/v1/public/yql?q=";
+     var url = endpoint + encodeURIComponent(YQL) + '&format=json&callback=receivedLatLng';
+     if(window.console) {console.log(YQL);}
+     loadScript(url,function(){}); 
+}
 
 function loadScript(url, callback){
     var script = document.createElement("script")
@@ -127,6 +144,6 @@ function loadScript(url, callback){
     document.getElementsByTagName("head")[0].appendChild(script);
 }
 </script>
-<script type="text/javascript" src="http://jsonip.appspot.com?callback=retrieveIp"></script>
+<script type="text/javascript" src="http://jsonip.appspot.com?callback=receivedIp"></script>
 </body>
 </html>

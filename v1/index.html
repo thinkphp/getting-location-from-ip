@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-   <title>Getting location from an IP based on YQL Geo Library</title>
+   <title>Getting location from your IP using maxmind</title>
    <link rel="stylesheet" href="http://yui.yahooapis.com/2.7.0/build/reset-fonts-grids/reset-fonts-grids.css" type="text/css">
    <link rel="stylesheet" href="http://yui.yahooapis.com/2.7.0/build/base/base.css" type="text/css">
    <style type="text/css">
@@ -46,7 +46,7 @@
 </head>
 <body>
 <div id="doc" class="yui-t7">
-   <div id="hd" role="banner"><h1>Getting location from IP based on YQL Geo Library</h1></div>
+   <div id="hd" role="banner"><h1>Getting location from your IP based on maxmind</h1></div>
       <div id="bd" role="main">
          <h2>Map and Info</h2>
          <div class="yui-g">
@@ -58,42 +58,38 @@
       </div><!--end bd -->
   <div id="ft" role="contentinfo"><p>written by @<a href="http://twitter.com/thinkphp">thinkphp</a></p></div>
 </div><!-- end doc -->
-<script type="text/javascript" src="geo.js"></script>
+<script type="text/javascript" src="http://j.maxmind.com/app/geoip.js"></script>
 <script type="text/javascript">
 function $(id){ return document.getElementById(id); }
 (function(){
-  var geo = yqlgeo.get('visitor',function(o){
-      var info = $('info');
-      var ob = o.place;
-      if(window.console){console.log(ob);}
-        var lat = ob.centroid.latitude,
-            lon = ob.centroid.longitude,
-            country_code = ob.country.code,
-            postal_code = ob.postal.content,
-            country_name = ob.country.content,
-            woeid = ob.woeid;
-        var type = ob.locality1.type;
-        var typecontent = ob.locality1.content;
-               out = '<h3>Information from your IP</h3>'+
+     var info = $('info');
+     var lat = geoip_latitude(), 
+         lon = geoip_longitude(),
+         city = geoip_city(),
+         region = geoip_region(),
+         region_name = geoip_region_name(),
+         postal_code = geoip_postal_code(),
+         country_name = geoip_country_name(),
+         country_code = geoip_country_code();
+         out = '<h3>Information from your IP</h3>'+
                '<ul>'+ 
-               '<li>WOEID: '+ woeid + '</li>'+ 
                '<li>Latitude: '+ lat + '</li>'+ 
                '<li>Longitude: '+ lon + '</li>'+ 
-               '<li>Country: '+ country_name + '</li>'+ 
-               '<li>Country Code: '+ country_code + '</li>'+ 
+               '<li>City: '+ city + '</li>'+ 
+               '<li>Region: '+ region + '</li>'+ 
+               '<li>Region Name: '+ region_name + '</li>'+ 
                '<li>Postal Code: '+ postal_code + '</li>'+ 
-               '<li>'+type+': '+ typecontent + '</li>';
+               '<li>Country Name: '+ country_name + '</li>'+ 
+               '<li>Country Code: '+ country_code + '</li>'+ 
                '</ul>';
-               info.innerHTML = out;
- 
-          var url = 'http://maps.google.com/maps/api/staticmap?center='+
-              lat+','+lon+'&sensor=false&size=300x300&maptype=roadmap&key='+
-              'ABQIAAAAHFKkG2s1GKwMWvhsxH6UGhTsE91L0UkYXwp_YlL0uSAPtCVs5hTWKxoV6BCF8F8RGtpqa4IYPMkbcQ'+
-              '&markers=color:blue|label:I|'+lat+','+lon+'&visible='+lat+','+lon+'|'+(lat+1)+','+(lon+1); 
-          var map = $('map');
-          map.innerHTML = '<img src="'+url+'" alt="'+typecontent+'">';   
-  });
-})();
+     info.innerHTML = out;
+     var url = 'http://maps.google.com/maps/api/staticmap?center='+
+                lat+','+lon+'&sensor=false&size=300x300&maptype=roadmap&key='+
+                'ABQIAAAAHFKkG2s1GKwMWvhsxH6UGhTsE91L0UkYXwp_YlL0uSAPtCVs5hTWKxoV6BCF8F8RGtpqa4IYPMkbcQ'+
+                '&markers=color:blue|label:I|'+lat+','+lon+'&visible='+lat+','+lon+'|'+(lat+1)+','+(lon+1); 
+     var map = $('map');
+     map.innerHTML = '<img src="'+url+'" alt="'+city+'">';
+ })();
 </script>
 </body>
 </html>
